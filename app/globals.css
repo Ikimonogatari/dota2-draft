@@ -1,35 +1,162 @@
 @import "tailwindcss";
 
-:root {
-  --background: #06060a;
-  --foreground: #f0f0f0;
+@theme inline {
+  --color-background: #02040a;
+  --color-foreground: #e1e1e1;
+
+  --font-display: var(--font-outfit);
+  --font-sans: var(--font-inter);
+
+  /* Premium Dota 2 Palette */
+  --color-dota-bg:       #02040a;
+  --color-dota-surface:  #0a0e1a;
+  --color-dota-panel:    #0d111d;
+  --color-dota-line:     #1e243a;
+  --color-dota-gold:     #d4af37; /* Metallic Gold */
+  --color-dota-gold-light: #f1d382;
+  --color-dota-muted:    #6b7280; /* Brighter muted for better visibility */
+  --color-dota-warm:     #f3f4f6; /* Near white for high visibility */
+  --color-dota-radiant:  #4ade80; /* Vibrant Green */
+  --color-dota-dire:     #f87171; /* Vibrant Red */
+  --color-dota-str:      #ef4444;
+  --color-dota-agi:      #22c55e;
+  --color-dota-int:      #3b82f6;
+  --color-dota-uni:      #a855f7;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+* { box-sizing: border-box; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(circle at 50% 0%, #0c1222 0%, #02040a 100%);
+  color: #f3f4f6;
+  font-family: var(--font-sans), "Inter", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Background textures ─────────────────────────────── */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(212,175,55,0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-crosshatch {
+  background-image:
+    linear-gradient(rgba(212,175,55,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,175,55,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Panel corner decorations ─────────── */
+.panel-corners { position: relative; }
+
+.panel-corners::before,
+.panel-corners::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: #d4af37;
+  opacity: 0.4;
+  z-index: 2;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.panel-corners::before {
+  top: -1px; left: -1px;
+  border-top: 2px solid; border-left: 2px solid;
+}
+.panel-corners::after {
+  bottom: -1px; right: -1px;
+  border-bottom: 2px solid; border-right: 2px solid;
+}
+
+.panel-corners-active::before,
+.panel-corners-active::after { 
+  opacity: 1;
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 0 10px rgba(212,175,55,0.3);
+}
+
+/* ─── Premium UI Elements ─────────────────────────────────── */
+.glass-panel {
+  background: rgba(13, 17, 29, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.dota-button {
+  @apply font-display font-black uppercase tracking-widest transition-all duration-300;
+  position: relative;
   overflow: hidden;
 }
 
-/* Thin scrollbar */
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
+.dota-button::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s;
 }
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
+
+.dota-button:hover::after {
+  left: 100%;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 2px;
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+.scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2f45 transparent;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #c8a243;
+.scrollbar-slim::-webkit-scrollbar { width: 4px; height: 4px; }
+.scrollbar-slim::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-slim::-webkit-scrollbar-thumb { background: #2a2f45; border-radius: 4px; }
+.scrollbar-slim::-webkit-scrollbar-thumb:hover { background: #d4af37; }
+
+/* ─── Animations ─────────────────────────────────────────── */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 1; filter: brightness(1.2) drop-shadow(0 0 8px currentColor); }
+  50%       { opacity: 0.6; filter: brightness(0.8) drop-shadow(0 0 2px currentColor); }
 }
+.glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-4px); }
+}
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+/* ─── Divider lines ─────────────────────────────────────── */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.6) 50%, transparent);
+  box-shadow: 0 0 4px rgba(212,175,55,0.2);
+}
+
+/* ─── Input Styling ──────────────────────────────────── */
+.input-base {
+  background: rgba(5, 7, 14, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-size: 0.9375rem;
+  color: #f3f4f6;
+  width: 100%;
+  transition: all 0.3s;
+  outline: none;
+  font-family: var(--font-sans), sans-serif;
+}
+.input-base::placeholder { color: rgba(255, 255, 255, 0.3); }
+.input-base:focus {
+  border-color: #d4af37;
+  background: rgba(5, 7, 14, 0.8);
+  box-shadow: 0 0 0 4px rgba(212,175,55,0.1), inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* Visibility utilities */
+.text-high-vis { color: #f9fafb; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+.text-footer { color: #9ca3af; font-size: 0.75rem; letter-spacing: 0.05em; }
