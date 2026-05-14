@@ -18,8 +18,8 @@ export default function ChatPanel({ messages }: ChatPanelProps) {
 
   if (messages.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-dota-muted text-[11px] font-display font-black uppercase tracking-[0.3em] opacity-40">
-        Санал болон үйл явдлууд энд харагдана
+      <div className="flex items-center justify-center h-full text-white/40 text-[11px] font-display font-black uppercase tracking-[0.3em]">
+        SUGGESTIONS AND EVENTS WILL APPEAR HERE
       </div>
     );
   }
@@ -38,7 +38,7 @@ export default function ChatPanel({ messages }: ChatPanelProps) {
         }
 
         return (
-          <div key={msg.id} className="flex items-center gap-4 bg-white/3 border border-white/5 rounded-sm px-4 py-2 animate-pop-in">
+          <div key={msg.id} className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-sm px-4 py-2 animate-pop-in">
             {msg.heroKey && (
               <div className="relative w-14 aspect-video shrink-0 rounded-sm overflow-hidden border border-white/10 shadow-lg">
                 <Image
@@ -52,11 +52,11 @@ export default function ChatPanel({ messages }: ChatPanelProps) {
             )}
             <div className="flex flex-col leading-tight min-w-0">
               <span className="text-[10px] text-dota-muted font-display font-bold uppercase tracking-wider truncate mb-1">
-                <span className="text-white font-black">{msg.authorName}</span> санал болгов
+                <span className="text-white font-black">{msg.authorName}</span> SUGGESTED
               </span>
               <span className="text-xs font-display font-black text-dota-gold truncate uppercase tracking-widest">{msg.heroName}</span>
             </div>
-            <span className="ml-auto text-[9px] text-dota-muted font-mono shrink-0 opacity-60">
+            <span className="ml-auto text-[10px] text-dota-muted font-mono shrink-0">
               {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </span>
           </div>

@@ -17,14 +17,14 @@ interface TeamRosterProps {
 
 const STYLE = {
   radiant: {
-    label: "РЭЙДИАНТ",
+    label: "RADIANT",
     color: "text-dota-radiant",
     border: "border-dota-radiant/30",
     bg: "bg-dota-radiant/5",
     headerAccent: "from-dota-radiant/15",
   },
   dire: {
-    label: "ДАЙЕР",
+    label: "DIRE",
     color: "text-dota-dire",
     border: "border-dota-dire/30",
     bg: "bg-dota-dire/5",
@@ -56,7 +56,7 @@ export default function TeamRoster({
         <span className={`font-display text-xs font-black tracking-[0.3em] uppercase ${style.color}`}>
           {style.label}
         </span>
-        <span className="font-display text-[10px] text-dota-warm/60 font-black tracking-widest">{players.length} / 5</span>
+        <span className="font-display text-[10px] text-white font-black tracking-widest opacity-80">{players.length} / 5</span>
       </div>
 
       {/* Players */}
@@ -66,7 +66,7 @@ export default function TeamRoster({
           if (!p) {
             return (
               <div key={i} className="h-12 flex items-center justify-center px-4 bg-black/20">
-                <span className="text-[10px] font-display font-bold text-white/20 uppercase tracking-[0.2em]">— ХООСОН —</span>
+                <span className="text-[10px] font-display font-black text-white/40 uppercase tracking-[0.25em]">— EMPTY —</span>
               </div>
             );
           }
@@ -90,10 +90,10 @@ export default function TeamRoster({
 
               {/* Name */}
               <span className={`text-xs font-display font-black uppercase tracking-wider truncate flex-1 ${
-                isMe ? "text-white" : "text-dota-warm/60"
+                isMe ? "text-white" : "text-white/70"
               }`}>
                 {p.name}
-                {isMe && <span className="text-dota-gold/60 text-[9px] ml-2 normal-case font-bold tracking-normal">(ТА)</span>}
+                {isMe && <span className="text-dota-gold text-[9px] ml-2 normal-case font-black tracking-normal opacity-80">(YOU)</span>}
               </span>
 
               {/* Actions */}
@@ -104,7 +104,7 @@ export default function TeamRoster({
                       onClick={() => onBecomeCaptain(myWorkId)}
                       className="dota-button text-[9px] font-black text-dota-gold border border-dota-gold/40 px-2 py-1 rounded-sm hover:bg-dota-gold/10 transition-all"
                     >
-                      АХЛАГЧ
+                      CAPTAIN
                     </button>
                   )}
                   {iAmCaptain && !isMe && me?.team === team && (
@@ -112,7 +112,7 @@ export default function TeamRoster({
                       onClick={() => onTransferCaptain(p.workId)}
                       className="dota-button text-[9px] font-black text-dota-gold border border-dota-gold/40 px-2 py-1 rounded-sm hover:bg-dota-gold/10 transition-all"
                     >
-                      ӨГӨХ
+                      GIVE
                     </button>
                   )}
                   {iAmCaptain && isMe && (
@@ -120,7 +120,7 @@ export default function TeamRoster({
                       onClick={onResignCaptain}
                       className="dota-button text-[9px] font-black text-dota-muted border border-white/20 px-2 py-1 rounded-sm hover:text-dota-dire hover:border-dota-dire/40 transition-all"
                     >
-                      ОГЦРОХ
+                      RESIGN
                     </button>
                   )}
                   {isAdmin && !isMe && (
@@ -128,7 +128,7 @@ export default function TeamRoster({
                       onClick={() => onSwap(p.workId)}
                       className="dota-button text-[9px] font-black text-dota-muted border border-white/20 px-2 py-1 rounded-sm hover:text-dota-gold hover:border-dota-gold/40 transition-all"
                     >
-                      СОЛИХ
+                      SWAP
                     </button>
                   )}
                 </div>

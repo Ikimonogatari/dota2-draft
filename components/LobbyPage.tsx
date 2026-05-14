@@ -76,10 +76,10 @@ export default function LobbyPage({ user, history }: Props) {
 
           {/* Nav */}
           <div className="flex items-center gap-1">
-            <span className="font-display text-[10px] text-dota-gold/80 uppercase tracking-widest px-3 py-1.5 border border-dota-gold/25 rounded-sm bg-dota-gold/5">
+            <span className="font-display text-[10px] text-dota-gold font-black uppercase tracking-widest px-3 py-1.5 border border-dota-gold/40 rounded-sm bg-dota-gold/10">
               Lobby
             </span>
-            <a href="/practice" className="font-display text-[10px] text-dota-muted hover:text-dota-warm uppercase tracking-widest px-3 py-1.5 border border-transparent hover:border-dota-line rounded-sm transition-all">
+            <a href="/practice" className="font-display text-[10px] text-white/60 hover:text-white uppercase tracking-widest px-3 py-1.5 border border-transparent hover:border-dota-line rounded-sm transition-all">
               Practice
             </a>
           </div>
@@ -98,7 +98,7 @@ export default function LobbyPage({ user, history }: Props) {
             </div>
             <button
               onClick={logout}
-              className="font-display text-[10px] text-dota-muted hover:text-dota-dire uppercase tracking-widest border border-dota-line px-2.5 py-1.5 rounded-sm transition-all hover:border-dota-dire/40"
+              className="font-display text-[10px] text-white/60 hover:text-dota-dire uppercase tracking-widest border border-dota-line px-2.5 py-1.5 rounded-sm transition-all hover:border-dota-dire/40"
             >
               Logout
             </button>
@@ -117,8 +117,8 @@ export default function LobbyPage({ user, history }: Props) {
             <div className="panel-corners relative">
               <div className="border border-dota-line rounded-sm bg-dota-panel overflow-hidden">
                 <div className="flex items-center gap-3 px-5 py-3 border-b border-dota-line bg-black/20">
-                  <div className="w-1.5 h-1.5 rounded-full bg-dota-gold" />
-                  <span className="font-display text-[11px] font-black uppercase tracking-[0.2em] text-dota-muted">
+                  <div className="w-1.5 h-1.5 rounded-full bg-dota-gold shadow-[0_0_8px_rgba(212,175,55,0.4)]" />
+                  <span className="font-display text-[11px] font-black uppercase tracking-[0.25em] text-white/70">
                     New Game Draft
                   </span>
                 </div>
@@ -148,7 +148,7 @@ export default function LobbyPage({ user, history }: Props) {
             {/* Sessions list */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="font-display text-[11px] font-black uppercase tracking-[0.2em] text-dota-muted">
+                <span className="font-display text-[11px] font-black uppercase tracking-[0.25em] text-white/70">
                   Active Drafts
                 </span>
                 <span className="text-[9px] text-dota-muted font-mono">
@@ -191,8 +191,8 @@ export default function LobbyPage({ user, history }: Props) {
                           {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-2 mb-2">
-                              <span className="font-bold text-sm text-dota-warm truncate">{s.name}</span>
-                              <span className="text-dota-muted/60 text-[10px] shrink-0">by {s.adminName}</span>
+                              <span className="font-black text-sm text-white tracking-wide truncate">{s.name}</span>
+                              <span className="text-white/40 text-[10px] shrink-0">by {s.adminName}</span>
                             </div>
                             {/* Player bar */}
                             <div className="flex items-center gap-2">
@@ -240,17 +240,17 @@ export default function LobbyPage({ user, history }: Props) {
                 <div className="w-6 h-6 rounded-sm bg-dota-gold/20 border border-dota-gold/40 flex items-center justify-center">
                   <span className="font-display text-xs font-black text-dota-gold">{user.name[0]?.toUpperCase()}</span>
                 </div>
-                <span className="font-display text-xs font-black text-dota-muted uppercase tracking-widest">My Profile</span>
+                <span className="font-display text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">My Profile</span>
               </div>
-              <div className="p-4 flex flex-col gap-2">
+              <div className="p-4 flex flex-col gap-2.5">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-dota-muted uppercase tracking-wider font-display">Name</span>
-                  <span className="text-sm font-bold text-dota-warm">{user.name}</span>
+                  <span className="text-[10px] text-white/40 uppercase tracking-widest font-display font-bold">Name</span>
+                  <span className="text-sm font-black text-white">{user.name}</span>
                 </div>
-                <div className="divider-gold" />
+                <div className="divider-gold opacity-30" />
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-dota-muted uppercase tracking-wider font-display">Work ID</span>
-                  <span className="font-mono text-xs text-dota-gold">{user.workId}</span>
+                  <span className="text-[10px] text-white/40 uppercase tracking-widest font-display font-bold">Work ID</span>
+                  <span className="font-mono text-xs text-dota-gold font-bold">{user.workId}</span>
                 </div>
               </div>
             </div>
@@ -258,8 +258,8 @@ export default function LobbyPage({ user, history }: Props) {
             {/* How it works */}
             <div className="border border-dota-line rounded-sm bg-dota-panel overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3 border-b border-dota-line bg-black/20">
-                <div className="w-1.5 h-1.5 rounded-full bg-dota-muted" />
-                <span className="font-display text-[11px] font-black uppercase tracking-[0.2em] text-dota-muted">How It Works</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-dota-gold/40" />
+                <span className="font-display text-[11px] font-black uppercase tracking-[0.25em] text-white/70">How It Works</span>
               </div>
               <div className="p-4 flex flex-col gap-3">
                 {[
@@ -270,8 +270,8 @@ export default function LobbyPage({ user, history }: Props) {
                   { n: "05", t: "Good luck, have fun" },
                 ].map((s) => (
                   <div key={s.n} className="flex items-center gap-3">
-                    <span className="font-mono text-[10px] text-dota-gold/60 shrink-0 w-5">{s.n}</span>
-                    <span className="text-xs text-dota-muted">{s.t}</span>
+                    <span className="font-mono text-[10px] text-dota-gold font-bold shrink-0 w-5">{s.n}</span>
+                    <span className="text-[11px] text-white/60 font-medium tracking-wide">{s.t}</span>
                   </div>
                 ))}
               </div>
@@ -281,8 +281,8 @@ export default function LobbyPage({ user, history }: Props) {
             {history.length > 0 && (
               <div className="border border-dota-line rounded-sm bg-dota-panel overflow-hidden">
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-dota-line bg-black/20">
-                  <div className="w-1.5 h-1.5 rounded-full bg-dota-muted" />
-                  <span className="font-display text-[11px] font-black uppercase tracking-[0.2em] text-dota-muted">History</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-dota-gold/40" />
+                  <span className="font-display text-[11px] font-black uppercase tracking-[0.25em] text-white/70">History</span>
                 </div>
                 <div className="flex flex-col divide-y divide-dota-line">
                   {history.slice(0, 5).map((h) => (

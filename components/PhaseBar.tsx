@@ -3,11 +3,11 @@
 import { DRAFT_SEQUENCE } from "@/lib/draft";
 
 const PHASES = [
-  { label: "ХОРИГ I", range: [0, 5], type: "ban" },
-  { label: "СОНГОЛТ I", range: [6, 9], type: "pick" },
-  { label: "ХОРИГ II", range: [10, 13], type: "ban" },
-  { label: "СОНГОЛТ II", range: [14, 17], type: "pick" },
-  { label: "ХОРИГ III", range: [18, 19], type: "ban" },
+  { label: "BAN I", range: [0, 5], type: "ban" },
+  { label: "PICK I", range: [6, 9], type: "pick" },
+  { label: "BAN II", range: [10, 13], type: "ban" },
+  { label: "PICK II", range: [14, 17], type: "pick" },
+  { label: "BAN III", range: [18, 19], type: "ban" },
   { label: "FINAL", range: [20, 21], type: "pick" },
 ];
 
@@ -77,10 +77,10 @@ export default function PhaseBar({ currentStep, timeLeft }: PhaseBarProps) {
               current.team === "radiant" ? "text-dota-radiant" : "text-dota-dire",
             ].join(" ")}
           >
-            {current.team === "radiant" ? "РЭЙДИАНТ" : "ДАЙЕР"}
+            {current.team === "radiant" ? "RADIANT" : "DIRE"}
           </span>
           <span className="text-white/40 text-[11px] font-bold uppercase tracking-widest">
-            {current.type === "ban" ? "ХОРИГЛОЖ БАЙНА" : "СОНГОЖ БАЙНА"}
+            {current.type === "ban" ? "BANNING" : "PICKING"}
           </span>
         </div>
       )}
@@ -96,7 +96,7 @@ export default function PhaseBar({ currentStep, timeLeft }: PhaseBarProps) {
           >
             {String(timeLeft).padStart(2, "0")}
           </div>
-          <span className="text-[8px] text-dota-muted font-black tracking-widest uppercase opacity-60">СЕКУНД</span>
+          <span className="text-[8px] text-dota-muted font-black tracking-widest uppercase opacity-60">SECONDS</span>
         </div>
       )}
 

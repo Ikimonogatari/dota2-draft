@@ -14,10 +14,10 @@ interface HeroGridProps {
 }
 
 const ATTR_LABELS: Record<Attribute, string> = {
-  strength: "ХҮЧ",
-  agility: "АВХААЛЖ",
-  intelligence: "ОЮУН",
-  universal: "ТҮГЭЭМЭЛ",
+  strength: "STRENGTH",
+  agility: "AGILITY",
+  intelligence: "INTELLECT",
+  universal: "UNIVERSAL",
 };
 
 export default function HeroGrid({ bannedIds, pickedIds, disabled, onSelect, onMention, isCaptainTurn }: HeroGridProps) {
@@ -44,7 +44,7 @@ export default function HeroGrid({ bannedIds, pickedIds, disabled, onSelect, onM
           </div>
           <input
             type="text"
-            placeholder="БААТАР ХАЙХ..."
+            placeholder="SEARCH HEROES..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="input-base pl-10"
@@ -62,7 +62,7 @@ export default function HeroGrid({ bannedIds, pickedIds, disabled, onSelect, onM
                   : "text-dota-muted hover:text-dota-warm hover:bg-white/5"
               }`}
             >
-              {a === "all" ? "БҮГД" : ATTR_LABELS[a]}
+              {a === "all" ? "ALL" : ATTR_LABELS[a]}
             </button>
           ))}
         </div>
@@ -87,7 +87,7 @@ export default function HeroGrid({ bannedIds, pickedIds, disabled, onSelect, onM
                 }}
                 className={`relative aspect-10/13 group transition-all duration-300 rounded-sm overflow-hidden border border-white/5 shadow-md ${
                   isUnavailable 
-                    ? "opacity-20 grayscale scale-95" 
+                    ? "opacity-30 grayscale scale-95" 
                     : "hover:scale-110 hover:z-10 hover:border-dota-gold/60 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]"
                 }`}
               >
@@ -112,7 +112,7 @@ export default function HeroGrid({ bannedIds, pickedIds, disabled, onSelect, onM
                 {isPicked && (
                   <div className="absolute inset-0 border-2 border-dota-gold/40 flex items-center justify-center">
                     <div className="bg-dota-gold/20 backdrop-blur-sm px-1 py-0.5 rounded-sm">
-                      <span className="text-[8px] font-black text-dota-gold uppercase tracking-tighter">СОНГОСОН</span>
+                      <span className="text-[8px] font-black text-dota-gold uppercase tracking-tighter">PICKED</span>
                     </div>
                   </div>
                 )}
@@ -131,9 +131,9 @@ export default function HeroGrid({ bannedIds, pickedIds, disabled, onSelect, onM
         </div>
         
         {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 opacity-30">
+          <div className="flex flex-col items-center justify-center py-20 opacity-60">
             <span className="text-4xl mb-4">🔍</span>
-            <p className="font-display font-black text-lg uppercase tracking-[0.4em]">БААТАР ОЛДСОНГҮЙ</p>
+            <p className="font-display font-black text-lg uppercase tracking-[0.4em] text-white">NO HEROES FOUND</p>
           </div>
         )}
       </div>

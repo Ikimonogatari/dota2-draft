@@ -14,7 +14,7 @@
   --color-dota-line:     #1e243a;
   --color-dota-gold:     #d4af37; /* Metallic Gold */
   --color-dota-gold-light: #f1d382;
-  --color-dota-muted:    #6b7280; /* Brighter muted for better visibility */
+  --color-dota-muted:    #9ca3af; /* Significantly brighter for better legibility */
   --color-dota-warm:     #f3f4f6; /* Near white for high visibility */
   --color-dota-radiant:  #4ade80; /* Vibrant Green */
   --color-dota-dire:     #f87171; /* Vibrant Red */
@@ -150,7 +150,7 @@ body {
   outline: none;
   font-family: var(--font-sans), sans-serif;
 }
-.input-base::placeholder { color: rgba(255, 255, 255, 0.3); }
+.input-base::placeholder { color: rgba(255, 255, 255, 0.45); }
 .input-base:focus {
   border-color: #d4af37;
   background: rgba(5, 7, 14, 0.8);

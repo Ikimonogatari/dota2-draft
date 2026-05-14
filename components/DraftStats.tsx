@@ -11,10 +11,10 @@ interface DraftStatsProps {
 }
 
 const ATTR_LABEL: Record<Attribute, string> = {
-  strength: "ХҮЧ",
-  agility: "АВХААЛЖ",
-  intelligence: "ОЮУН",
-  universal: "ТҮГЭЭМЭЛ",
+  strength: "STRENGTH",
+  agility: "AGILITY",
+  intelligence: "INTELLECT",
+  universal: "UNIVERSAL",
 };
 
 const ATTR_COLOR: Record<Attribute, string> = {
@@ -72,22 +72,22 @@ export default function DraftStats({ session, onNewDraft }: DraftStatsProps) {
   const duration = session.completedAt && session.createdAt
     ? Math.floor((session.completedAt - session.createdAt) / 1000)
     : 0;
-  const durationStr = duration > 0 ? `${Math.floor(duration / 60)}м ${duration % 60}с` : "—";
+  const durationStr = duration > 0 ? `${Math.floor(duration / 60)}m ${duration % 60}s` : "—";
 
   return (
     <div className="flex flex-col gap-10 max-w-5xl mx-auto w-full animate-fade-in-up">
       <div className="text-center">
-        <p className="font-display text-xs text-dota-gold font-black tracking-[0.6em] mb-4 opacity-80 uppercase">ДРАФТЫН ҮР ДҮН</p>
-        <h1 className="font-display text-5xl font-black tracking-widest text-white uppercase drop-shadow-2xl mb-8">ДРАФТ ДУУСЛАА</h1>
+        <p className="font-display text-xs text-dota-gold font-black tracking-[0.6em] mb-4 opacity-80 uppercase">DRAFT RESULTS</p>
+        <h1 className="font-display text-5xl font-black tracking-widest text-white uppercase drop-shadow-2xl mb-8">DRAFT COMPLETED</h1>
         
         <div className="flex items-center justify-center gap-8 glass-panel py-4 px-12 rounded-sm border border-white/5 mx-auto w-fit">
           <div className="flex flex-col">
-            <span className="text-[10px] text-dota-muted font-black uppercase tracking-widest mb-1">СЕССИ</span>
+            <span className="text-[10px] text-dota-muted font-black uppercase tracking-widest mb-1">SESSION</span>
             <span className="text-sm text-white font-black uppercase tracking-wider">{session.name}</span>
           </div>
           <div className="w-px h-8 bg-white/10" />
           <div className="flex flex-col">
-            <span className="text-[10px] text-dota-muted font-black uppercase tracking-widest mb-1">ХУГАЦАА</span>
+            <span className="text-[10px] text-dota-muted font-black uppercase tracking-widest mb-1">DURATION</span>
             <span className="text-sm text-white font-black uppercase tracking-wider">{durationStr}</span>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function DraftStats({ session, onNewDraft }: DraftStatsProps) {
         <div className="glass-panel border border-dota-radiant/20 rounded-sm overflow-hidden panel-corners transition-all duration-500 hover:border-dota-radiant/40">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-dota-radiant/20 bg-linear-to-r from-dota-radiant/10 to-transparent">
             <div className="w-3 h-3 rounded-full bg-dota-radiant shadow-[0_0_15px_rgba(74,222,128,0.4)]" />
-            <h2 className="font-display text-lg font-black tracking-[0.3em] text-dota-radiant uppercase">РЭЙДИАНТ</h2>
+            <h2 className="font-display text-lg font-black tracking-[0.3em] text-dota-radiant uppercase">RADIANT</h2>
           </div>
           <div className="p-8">
             <div className="flex flex-wrap gap-6 justify-center mb-8">
@@ -110,7 +110,7 @@ export default function DraftStats({ session, onNewDraft }: DraftStatsProps) {
               ))}
             </div>
             <p className="text-[11px] font-display font-black text-dota-muted text-center uppercase tracking-[0.4em] opacity-60">
-              {radiantBans} ХОРИГЛОСОН
+              {radiantBans} BANS
             </p>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function DraftStats({ session, onNewDraft }: DraftStatsProps) {
         <div className="glass-panel border border-dota-dire/20 rounded-sm overflow-hidden panel-corners transition-all duration-500 hover:border-dota-dire/40">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-dota-dire/20 bg-linear-to-r from-dota-dire/10 to-transparent">
             <div className="w-3 h-3 rounded-full bg-dota-dire shadow-[0_0_15px_rgba(248,113,113,0.4)]" />
-            <h2 className="font-display text-lg font-black tracking-[0.3em] text-dota-dire uppercase">ДАЙЕР</h2>
+            <h2 className="font-display text-lg font-black tracking-[0.3em] text-dota-dire uppercase">DIRE</h2>
           </div>
           <div className="p-8">
             <div className="flex flex-wrap gap-6 justify-center mb-8">
@@ -131,7 +131,7 @@ export default function DraftStats({ session, onNewDraft }: DraftStatsProps) {
               ))}
             </div>
             <p className="text-[11px] font-display font-black text-dota-muted text-center uppercase tracking-[0.4em] opacity-60">
-              {direBans} ХОРИГЛОСОН
+              {direBans} BANS
             </p>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default function DraftStats({ session, onNewDraft }: DraftStatsProps) {
           onClick={onNewDraft}
           className="dota-button px-12 py-4 bg-dota-gold text-dota-bg font-black text-sm rounded-sm shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95"
         >
-          ЛОБИ РУУ БУЦАХ
+          BACK TO LOBBY
         </button>
       </div>
     </div>

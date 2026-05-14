@@ -57,7 +57,7 @@ export default function LoginForm() {
               DRAFT
             </h1>
             <div className="divider-gold mt-5 mb-5 w-32 mx-auto" />
-            <p className="text-dota-muted text-sm tracking-widest uppercase font-display">
+            <p className="text-white/60 text-sm tracking-widest uppercase font-display font-medium">
               Captains Mode · 10 Players · Real-time
             </p>
           </div>
@@ -117,17 +117,17 @@ export default function LoginForm() {
               <div className="h-px w-full bg-linear-to-r from-transparent via-dota-gold/60 to-transparent" />
               <div className="px-8 pt-8 pb-6">
                 <div className="mb-7">
-                  <h2 className="font-display text-lg font-black tracking-[0.2em] text-dota-warm uppercase">
+                  <h2 className="font-display text-lg font-black tracking-[0.2em] text-white uppercase">
                     Enter the Draft
                   </h2>
-                  <p className="text-dota-muted text-xs mt-1 tracking-wide">
+                  <p className="text-white/50 text-xs mt-1 tracking-wide">
                     Identify yourself to join or create game drafts
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                   <div>
-                    <label className="block font-display text-[10px] text-dota-muted uppercase tracking-[0.2em] mb-2">
+                    <label className="block font-display text-[10px] text-white/60 uppercase tracking-[0.25em] mb-2 font-bold">
                       Display Name
                     </label>
                     <input
@@ -141,7 +141,7 @@ export default function LoginForm() {
                   </div>
 
                   <div>
-                    <label className="block font-display text-[10px] text-dota-muted uppercase tracking-[0.2em] mb-2">
+                    <label className="block font-display text-[10px] text-white/60 uppercase tracking-[0.25em] mb-2 font-bold">
                       Work ID
                     </label>
                     <input
