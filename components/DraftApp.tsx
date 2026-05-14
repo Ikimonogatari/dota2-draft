@@ -179,13 +179,13 @@ export default function DraftApp() {
     ]);
   }, []);
 
-  const handleLocalChat = useCallback((text: string) => {
+  const handleLocalChat = useCallback((text: string, scope: "all" | "radiant" | "dire") => {
     setChatMessages((prev) => [
       ...prev,
       {
         id: Math.random().toString(36).slice(2),
         type: "chat",
-        scope: "all",
+        scope,
         authorId: "local",
         authorName: "You",
         text,

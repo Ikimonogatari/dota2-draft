@@ -96,7 +96,11 @@ export default function ChatPanel({ messages, sessionId, onSend, myTeam, disable
         {tabs.map((t) => (
           <button
             key={t}
-            onClick={() => setTab(t)}
+            onClick={() => {
+              setTab(t);
+              // Sync send scope so viewing a team tab also sends to that team
+              setSendScope(t);
+            }}
             className={[
               "px-2.5 py-1 rounded-sm text-[9px] font-display font-black tracking-[0.15em] uppercase border transition-all duration-200",
               tab === t ? SCOPE_ACTIVE[t] : "border-white/10 text-white/30 hover:text-white/60 hover:border-white/20",
