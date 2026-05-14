@@ -104,7 +104,7 @@ export default function TeamRoster({
                       onClick={() => onBecomeCaptain(myWorkId)}
                       className="dota-button text-[9px] font-black text-dota-gold border border-dota-gold/40 px-2 py-1 rounded-sm hover:bg-dota-gold/10 transition-all"
                     >
-                      CAPTAIN
+                      BECOME CAPTAIN
                     </button>
                   )}
                   {iAmCaptain && !isMe && me?.team === team && (
@@ -112,7 +112,7 @@ export default function TeamRoster({
                       onClick={() => onTransferCaptain(p.workId)}
                       className="dota-button text-[9px] font-black text-dota-gold border border-dota-gold/40 px-2 py-1 rounded-sm hover:bg-dota-gold/10 transition-all"
                     >
-                      GIVE
+                      PASS CAPTAIN
                     </button>
                   )}
                   {iAmCaptain && isMe && (
@@ -120,10 +120,10 @@ export default function TeamRoster({
                       onClick={onResignCaptain}
                       className="dota-button text-[9px] font-black text-dota-muted border border-white/20 px-2 py-1 rounded-sm hover:text-dota-dire hover:border-dota-dire/40 transition-all"
                     >
-                      RESIGN
+                      RESIGN CAPTAIN
                     </button>
                   )}
-                  {isAdmin && !isMe && (
+                  {(isAdmin || isMe) && (
                     <button
                       onClick={() => onSwap(p.workId)}
                       className="dota-button text-[9px] font-black text-dota-muted border border-white/20 px-2 py-1 rounded-sm hover:text-dota-gold hover:border-dota-gold/40 transition-all"

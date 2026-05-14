@@ -157,10 +157,10 @@ class Store {
     return null;
   }
 
-  swapPlayer(sessionId: string, adminWorkId: string, targetWorkId: string): string | null {
+  swapPlayer(sessionId: string, requesterWorkId: string, targetWorkId: string): string | null {
     const s = this.sessions.get(sessionId);
     if (!s) return "Session not found";
-    if (adminWorkId !== s.adminId) return "Only admin can swap players";
+    if (requesterWorkId !== s.adminId && requesterWorkId !== targetWorkId) return "Only admin can swap other players";
     if (s.status === "drafting" || s.status === "completed") return "Cannot swap during draft";
 
     const player = s.players.find((p) => p.workId === targetWorkId);
