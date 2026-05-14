@@ -1,6 +1,6 @@
 import { DRAFT_SEQUENCE, initDraftSlots } from "@/lib/draft";
 import { HEROES } from "@/lib/heroes";
-import type { Session, Player, ChatMessage, SessionSummary, TeamName, Role } from "@/lib/types";
+import type { Session, Player, ChatMessage, SessionSummary, TeamName, Role, LobbyMode } from "@/lib/types";
 
 function makeId(len = 6): string {
   return Math.random().toString(36).slice(2, 2 + len).toUpperCase();
@@ -45,19 +45,20 @@ class Store {
 
   // ── Sessions ─────────────────────────────────────────────────────────
 
-  createSession(name: string, adminWorkId: string, adminName: string, mmr: number, roles: Role[]): Session {
+  createSession(name: string, mode: LobbyMode, adminWorkId: string, adminName: string, mmr: number, roles: Role[]): Session {
     const id = makeId();
     const firstPlayer: Player = {
       workId: adminWorkId,
       name: adminName,
       mmr,
       roles,
-      team: "unassigned",
+      team: mode === "free" ? "radiant" : "unassigned",
       isCaptain: false,
     };
     const session: Session = {
       id,
       name,
+      mode,
       status: "waiting",
       players: [firstPlayer],
       adminId: adminWorkId,
@@ -80,6 +81,7 @@ class Store {
       .map((s) => ({
         id: s.id,
         name: s.name,
+        mode: s.mode,
         status: s.status,
         playerCount: s.players.length,
         adminName: s.players.find((p) => p.workId === s.adminId)?.name ?? "—",
@@ -97,7 +99,13 @@ class Store {
     if (s.players.find((p) => p.workId === workId)) return null;
     if (s.players.length >= 10) return "Session is full";
 
-    s.players.push({ workId, name, mmr, roles, team: "unassigned", isCaptain: false });
+    let team: TeamName | "unassigned" = "unassigned";
+    if (s.mode === "free") {
+      const radiantCount = s.players.filter((p) => p.team === "radiant").length;
+      team = radiantCount < 5 ? "radiant" : "dire";
+    }
+
+    s.players.push({ workId, name, mmr, roles, team, isCaptain: false });
 
     if (s.players.length === 10 && s.status === "waiting") {
       s.status = "ready";
@@ -108,7 +116,7 @@ class Store {
     return null;
   }
 
-  setCaptain(sessionId: string, requesterWorkId: string, targetWorkId: string): string | null {
+  setCaptain(sessionId: string, requesterWorkId: string, targetWorkId: string, targetTeam?: "radiant" | "dire"): string | null {
     const s = this.sessions.get(sessionId);
     if (!s) return "Session not found";
     if (s.status === "drafting" || s.status === "completed") return "Cannot change captain now";
@@ -120,21 +128,39 @@ class Store {
 
     const isAdmin = requesterWorkId === s.adminId;
     const isSelf = requesterWorkId === targetWorkId;
-    const existingCaptain = target.team === "radiant" ? s.radiantCaptain : s.direCaptain;
+    
+    // If claiming from unassigned
+    if (isSelf && target.team === "unassigned" && targetTeam) {
+      const existingCaptain = targetTeam === "radiant" ? s.radiantCaptain : s.direCaptain;
+      if (existingCaptain) return "Team already has a captain";
+      target.team = targetTeam;
+      target.isCaptain = true;
+      if (targetTeam === "radiant") s.radiantCaptain = targetWorkId;
+      else s.direCaptain = targetWorkId;
+      this.addSystemMessage(sessionId, `${target.name} became ${targetTeam} captain`);
+      this.broadcast(sessionId);
+      return null;
+    }
+
+    const teamToManage = targetTeam || target.team;
+    if (teamToManage === "unassigned") return "Cannot be captain of unassigned";
+
+    const existingCaptain = teamToManage === "radiant" ? s.radiantCaptain : s.direCaptain;
     const isCurrentCaptain = existingCaptain === requesterWorkId;
 
     if (!isAdmin && !isSelf && !isCurrentCaptain) return "Not authorized";
     if (isSelf && existingCaptain && existingCaptain !== requesterWorkId) return "Team already has a captain";
-    if (!isAdmin && requester.team !== target.team) return "Can only manage your own team";
+    if (!isAdmin && requester.team !== teamToManage) return "Can only manage your own team";
 
     s.players.forEach((p) => {
-      if (p.team === target.team) p.isCaptain = false;
+      if (p.team === teamToManage) p.isCaptain = false;
     });
+    target.team = teamToManage;
     target.isCaptain = true;
-    if (target.team === "radiant") s.radiantCaptain = targetWorkId;
+    if (teamToManage === "radiant") s.radiantCaptain = targetWorkId;
     else s.direCaptain = targetWorkId;
 
-    this.addSystemMessage(sessionId, `${target.name} is now ${target.team} captain`);
+    this.addSystemMessage(sessionId, `${target.name} is now ${teamToManage} captain`);
     this.broadcast(sessionId);
     return null;
   }
@@ -176,6 +202,30 @@ class Store {
 
     player.team = newTeam;
     this.addSystemMessage(sessionId, `${player.name} moved to ${newTeam}`);
+    this.broadcast(sessionId);
+    return null;
+  }
+
+  joinTeam(sessionId: string, workId: string, team: "radiant" | "dire"): string | null {
+    const s = this.sessions.get(sessionId);
+    if (!s) return "Session not found";
+    if (s.mode !== "free") return "Only allowed in free mode";
+    if (s.status === "drafting" || s.status === "completed") return "Cannot change team now";
+
+    const player = s.players.find((p) => p.workId === workId);
+    if (!player) return "Player not found";
+    if (player.team === team) return null;
+
+    if (s.players.filter((p) => p.team === team).length >= 5) return `${team} team is full`;
+
+    if (player.isCaptain) {
+      player.isCaptain = false;
+      if (player.team === "radiant") s.radiantCaptain = null;
+      else s.direCaptain = null;
+    }
+
+    player.team = team;
+    this.addSystemMessage(sessionId, `${player.name} joined ${team}`);
     this.broadcast(sessionId);
     return null;
   }

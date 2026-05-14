@@ -9,10 +9,12 @@ interface TeamRosterProps {
   myWorkId: string;
   isAdmin: boolean;
   sessionStatus: string;
+  sessionMode: "free" | "draft";
   onBecomeCaptain: (workId: string) => void;
   onTransferCaptain: (workId: string) => void;
   onResignCaptain: () => void;
   onSwap: (workId: string) => void;
+  onJoinTeam?: (team: "radiant" | "dire") => void;
 }
 
 const STYLE = {
@@ -39,15 +41,18 @@ export default function TeamRoster({
   myWorkId,
   isAdmin,
   sessionStatus,
+  sessionMode,
   onBecomeCaptain,
   onTransferCaptain,
   onResignCaptain,
   onSwap,
+  onJoinTeam,
 }: TeamRosterProps) {
   const style = STYLE[team];
   const me = players.find((p) => p.workId === myWorkId);
   const iAmCaptain = captain === myWorkId;
   const isDrafting = sessionStatus === "drafting" || sessionStatus === "completed";
+  const canJoinEmpty = !isDrafting && sessionMode === "free" && onJoinTeam;
   
   const neededRoles: import("@/lib/types").Role[] = ["mid", "carry", "offlane", "support", "hard support"];
   const coveredRoles = new Set(players.flatMap(p => p.roles || []));
@@ -69,8 +74,18 @@ export default function TeamRoster({
           const p = players[i];
           if (!p) {
             return (
-              <div key={i} className="h-12 flex items-center justify-center px-4 bg-black/20">
-                <span className="text-[10px] font-display font-black text-white/40 uppercase tracking-[0.25em]">— EMPTY —</span>
+              <div
+                key={i}
+                onClick={() => canJoinEmpty && onJoinTeam(team)}
+                className={`h-12 flex items-center justify-center px-4 bg-black/20 transition-all ${
+                  canJoinEmpty ? "cursor-pointer hover:bg-white/5" : ""
+                }`}
+              >
+                <span className={`text-[10px] font-display font-black uppercase tracking-[0.25em] ${
+                  canJoinEmpty ? "text-white/60 hover:text-white" : "text-white/40"
+                }`}>
+                  {canJoinEmpty ? "— CLICK TO JOIN —" : "— EMPTY —"}
+                </span>
               </div>
             );
           }

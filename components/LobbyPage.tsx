@@ -19,6 +19,7 @@ interface Props {
 export default function LobbyPage({ user, history }: Props) {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [newName, setNewName] = useState("");
+  const [mode, setMode] = useState<"free" | "draft">("draft");
   const [creating, setCreating] = useState(false);
   const router = useRouter();
 
@@ -39,7 +40,7 @@ export default function LobbyPage({ user, history }: Props) {
     const res = await fetch("/api/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newName.trim() }),
+      body: JSON.stringify({ name: newName.trim(), mode }),
     });
     if (res.ok) {
       const { id } = await res.json();
@@ -123,24 +124,48 @@ export default function LobbyPage({ user, history }: Props) {
                   </span>
                 </div>
                 <div className="p-5">
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && createSession()}
-                      placeholder="Name your draft (e.g. Office Finals)"
-                      autoComplete="off"
-                      className="input-base flex-1"
-                    />
-                    <button
-                      onClick={createSession}
-                      disabled={creating || !newName.trim()}
-                      className="shrink-0 px-6 py-2.5 bg-dota-gold hover:bg-dota-gold-light text-dota-bg font-display font-black text-xs uppercase tracking-[0.15em] rounded-sm transition-all disabled:opacity-40 relative overflow-hidden group"
-                    >
-                      <span className="relative z-10">Create</span>
-                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
-                    </button>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && createSession()}
+                        placeholder="Name your draft (e.g. Office Finals)"
+                        autoComplete="off"
+                        className="input-base flex-1"
+                      />
+                      <button
+                        onClick={createSession}
+                        disabled={creating || !newName.trim()}
+                        className="shrink-0 px-6 py-2.5 bg-dota-gold hover:bg-dota-gold-light text-dota-bg font-display font-black text-xs uppercase tracking-[0.15em] rounded-sm transition-all disabled:opacity-40 relative overflow-hidden group"
+                      >
+                        <span className="relative z-10">Create</span>
+                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
+                      </button>
+                    </div>
+                    
+                    <div className="flex gap-4 items-center">
+                      <span className="font-display text-[9px] text-white/50 uppercase tracking-widest">LOBBY MODE:</span>
+                      <div className="flex bg-black/40 border border-white/5 rounded-sm p-1">
+                        <button
+                          onClick={() => setMode("draft")}
+                          className={`px-4 py-1.5 text-[10px] font-display font-black uppercase tracking-widest transition-all rounded-sm ${
+                            mode === "draft" ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/70"
+                          }`}
+                        >
+                          Player Draft
+                        </button>
+                        <button
+                          onClick={() => setMode("free")}
+                          className={`px-4 py-1.5 text-[10px] font-display font-black uppercase tracking-widest transition-all rounded-sm ${
+                            mode === "free" ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/70"
+                          }`}
+                        >
+                          Free Mode
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -193,7 +218,10 @@ export default function LobbyPage({ user, history }: Props) {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-baseline gap-2 mb-2">
                               <span className="font-black text-sm text-white tracking-wide truncate">{s.name}</span>
-                              <span className="text-white/40 text-[10px] shrink-0">by {s.adminName}</span>
+                              <span className="text-white/30 text-[9px] uppercase tracking-widest px-1.5 py-0.5 border border-white/10 rounded-sm">
+                                {s.mode === "free" ? "Free" : "Draft"}
+                              </span>
+                              <span className="text-white/40 text-[10px] shrink-0 ml-auto">by {s.adminName}</span>
                             </div>
                             {/* Player bar */}
                             <div className="flex items-center gap-2">

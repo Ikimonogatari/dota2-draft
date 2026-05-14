@@ -34,9 +34,12 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export type LobbyMode = "free" | "draft";
+
 export interface Session {
   id: string;
   name: string;
+  mode: LobbyMode;
   status: SessionStatus;
   players: Player[];
   adminId: string;
@@ -54,6 +57,7 @@ export interface Session {
 export interface SessionSummary {
   id: string;
   name: string;
+  mode: LobbyMode;
   status: SessionStatus;
   playerCount: number;
   adminName: string;

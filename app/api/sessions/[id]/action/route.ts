@@ -19,13 +19,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   switch (type) {
     case "setCaptain":
-      err = store.setCaptain(id, user.workId, payload.targetWorkId as string);
+      err = store.setCaptain(id, user.workId, payload.targetWorkId as string, payload.targetTeam as any);
       break;
     case "resignCaptain":
       err = store.resignCaptain(id, user.workId);
       break;
     case "swapPlayer":
       err = store.swapPlayer(id, user.workId, payload.targetWorkId as string);
+      break;
+    case "joinTeam":
+      err = store.joinTeam(id, user.workId, payload.targetTeam as "radiant" | "dire");
       break;
     case "startPlayerDraft":
       err = store.startPlayerDraft(id, user.workId);

@@ -126,6 +126,7 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
 
   const radiantPlayers = session.players.filter((p) => p.team === "radiant");
   const direPlayers    = session.players.filter((p) => p.team === "dire");
+  const unassignedPlayers = session.players.filter((p) => p.team === "unassigned");
   const bannedIds      = new Set(session.slots.filter((s) => s.type === "ban"  && s.heroId).map((s) => s.heroId!));
   const pickedIds      = new Set(session.slots.filter((s) => s.type === "pick" && s.heroId).map((s) => s.heroId!));
 
@@ -200,10 +201,12 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
               myWorkId={user.workId}
               isAdmin={isAdmin}
               sessionStatus={session.status}
+              sessionMode={session.mode}
               onBecomeCaptain={(t) => action("setCaptain", { targetWorkId: t })}
               onTransferCaptain={(t) => action("setCaptain", { targetWorkId: t })}
               onResignCaptain={() => action("resignCaptain")}
               onSwap={(t) => action("swapPlayer", { targetWorkId: t })}
+              onJoinTeam={(t) => action("joinTeam", { targetTeam: t })}
             />
           </div>
 
@@ -277,6 +280,43 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
                     {session.players.length} / 10 PLAYERS CONNECTED
                   </p>
                 </div>
+
+                {/* Draft Mode Unassigned Pool & Claim Captain */}
+                {session.mode === "draft" && unassignedPlayers.length > 0 && (
+                  <div className="mt-8 animate-fade-in-up">
+                    <p className="font-display text-[11px] text-white/50 uppercase tracking-widest mb-4">
+                      Unassigned Players
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2 mb-6">
+                      {unassignedPlayers.map(p => (
+                        <div key={p.workId} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-sm text-xs font-bold text-white/80">
+                          {p.name} {p.workId === user.workId && <span className="text-dota-gold text-[9px] ml-1">(YOU)</span>}
+                        </div>
+                      ))}
+                    </div>
+
+                    {me?.team === "unassigned" && (
+                      <div className="flex justify-center gap-4">
+                        {!session.radiantCaptain && (
+                          <button
+                            onClick={() => action("setCaptain", { targetWorkId: user.workId, targetTeam: "radiant" })}
+                            className="dota-button px-4 py-2 border border-dota-radiant/40 text-dota-radiant hover:bg-dota-radiant/10 rounded-sm text-[10px] font-black uppercase tracking-widest"
+                          >
+                            Claim Radiant Captain
+                          </button>
+                        )}
+                        {!session.direCaptain && (
+                          <button
+                            onClick={() => action("setCaptain", { targetWorkId: user.workId, targetTeam: "dire" })}
+                            className="dota-button px-4 py-2 border border-dota-dire/40 text-dota-dire hover:bg-dota-dire/10 rounded-sm text-[10px] font-black uppercase tracking-widest"
+                          >
+                            Claim Dire Captain
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -354,10 +394,12 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
               myWorkId={user.workId}
               isAdmin={isAdmin}
               sessionStatus={session.status}
+              sessionMode={session.mode}
               onBecomeCaptain={(t) => action("setCaptain", { targetWorkId: t })}
               onTransferCaptain={(t) => action("setCaptain", { targetWorkId: t })}
               onResignCaptain={() => action("resignCaptain")}
               onSwap={(t) => action("swapPlayer", { targetWorkId: t })}
+              onJoinTeam={(t) => action("joinTeam", { targetTeam: t })}
             />
           </div>
         </div>

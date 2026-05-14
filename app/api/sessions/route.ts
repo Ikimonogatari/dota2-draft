@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
   const user = getUser(req);
   if (!user) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
-  const { name } = await req.json();
+  const { name, mode = "free" } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: "Session name required" }, { status: 400 });
 
-  const session = getStore().createSession(name.trim(), user.workId, user.name, user.mmr, user.roles);
+  const session = getStore().createSession(name.trim(), mode, user.workId, user.name, user.mmr, user.roles);
   return NextResponse.json({ id: session.id });
 }
