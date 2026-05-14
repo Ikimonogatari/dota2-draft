@@ -9,7 +9,10 @@ type Scope = "all" | "radiant" | "dire";
 
 interface ChatPanelProps {
   messages: ChatMessage[];
-  sessionId: string;
+  /** Multiplayer mode: session id to POST to */
+  sessionId?: string;
+  /** Practice / local mode: called instead of API */
+  onSend?: (text: string, scope: Scope) => void;
   myTeam: "radiant" | "dire" | "spectator";
   disabled?: boolean;
 }
@@ -40,7 +43,7 @@ const SCOPE_NAME_COLOR: Record<Scope, string> = {
   dire: "text-dota-dire",
 };
 
-export default function ChatPanel({ messages, sessionId, myTeam, disabled }: ChatPanelProps) {
+export default function ChatPanel({ messages, sessionId, onSend, myTeam, disabled }: ChatPanelProps) {
   const teamScope: Scope | null = myTeam === "spectator" ? null : myTeam;
   const [tab, setTab] = useState<Scope>("all");
   const [sendScope, setSendScope] = useState<Scope>("all");
@@ -68,10 +71,14 @@ export default function ChatPanel({ messages, sessionId, myTeam, disabled }: Cha
     if (!text || sending || disabled) return;
     setSending(true);
     setInput("");
-    await postChat(sessionId, text, sendScope);
+    if (onSend) {
+      onSend(text, sendScope);
+    } else if (sessionId) {
+      await postChat(sessionId, text, sendScope);
+    }
     setSending(false);
     inputRef.current?.focus();
-  }, [input, sending, disabled, sessionId, sendScope]);
+  }, [input, sending, disabled, sessionId, onSend, sendScope]);
 
   const handleKey = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {

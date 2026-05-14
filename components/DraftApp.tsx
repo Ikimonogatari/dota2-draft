@@ -9,6 +9,8 @@ import { useCountdown } from "@/hooks/useCountdown";
 import TeamPanel from "./TeamPanel";
 import HeroGrid from "./HeroGrid";
 import PhaseBar from "./PhaseBar";
+import ChatPanel from "./ChatPanel";
+import type { ChatMessage } from "@/lib/types";
 
 const TIMER_DURATION = 30;
 
@@ -86,6 +88,7 @@ export default function DraftApp() {
   const [slots, setSlots] = useState<DraftSlot[]>(initDraftSlots);
   const [currentStep, setCurrentStep] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const isDone = currentStep >= DRAFT_SEQUENCE.length;
 
@@ -158,6 +161,38 @@ export default function DraftApp() {
 
   const timeLeft = useCountdown(currentStep, TIMER_DURATION, !isDone);
   const currentAction = isDone ? null : DRAFT_SEQUENCE[currentStep];
+
+  const handleMentionLocal = useCallback((hero: Hero) => {
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(36).slice(2),
+        type: "mention",
+        scope: "all",
+        authorId: "local",
+        authorName: "You",
+        heroId: hero.id,
+        heroName: hero.displayName,
+        heroKey: hero.name,
+        timestamp: Date.now(),
+      } satisfies ChatMessage,
+    ]);
+  }, []);
+
+  const handleLocalChat = useCallback((text: string) => {
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        id: Math.random().toString(36).slice(2),
+        type: "chat",
+        scope: "all",
+        authorId: "local",
+        authorName: "You",
+        text,
+        timestamp: Date.now(),
+      } satisfies ChatMessage,
+    ]);
+  }, []);
 
   // Auto-select a random available hero when timer expires
   useEffect(() => {
@@ -266,16 +301,25 @@ export default function DraftApp() {
           <TeamPanel team="radiant" slots={slots} currentStep={currentStep} />
         </div>
 
-        {/* Hero grid */}
-        <div className="flex-1 min-w-0">
-          <HeroGrid
-            bannedIds={bannedIds}
-            pickedIds={pickedIds}
-            disabled={isDone}
-            onSelect={handleSelectHero}
-            onMention={() => {}}
-            isCaptainTurn={true}
-          />
+        {/* Hero grid + chat */}
+        <div className="flex-1 min-w-0 flex flex-col gap-2 min-h-0">
+          <div className="flex-1 min-h-0">
+            <HeroGrid
+              bannedIds={bannedIds}
+              pickedIds={pickedIds}
+              disabled={isDone}
+              onSelect={handleSelectHero}
+              onMention={handleMentionLocal}
+              isCaptainTurn={true}
+            />
+          </div>
+          <div className="shrink-0 h-52 border border-dota-line/40 rounded-sm bg-dota-panel/80">
+            <ChatPanel
+              messages={chatMessages}
+              onSend={handleLocalChat}
+              myTeam="radiant"
+            />
+          </div>
         </div>
 
         {/* Dire (desktop) */}
