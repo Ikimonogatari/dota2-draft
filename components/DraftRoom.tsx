@@ -46,9 +46,30 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
   useEffect(() => {
     const es = new EventSource(`/api/sessions/${sessionId}/stream`);
     esRef.current = es;
-    es.onmessage = (e) => { try { setSession(JSON.parse(e.data)); } catch {} };
-    es.onerror = () => setError("Connection lost. Please refresh to reconnect.");
-    return () => es.close();
+    let hadSession = false;
+    let errorTimer: ReturnType<typeof setTimeout> | null = null;
+
+    es.onmessage = (e) => {
+      try {
+        setSession(JSON.parse(e.data));
+        hadSession = true;
+        if (errorTimer) { clearTimeout(errorTimer); errorTimer = null; }
+      } catch {}
+    };
+
+    es.onerror = () => {
+      // EventSource auto-reconnects; only surface an error if we had a session
+      // and still haven't received a new message after 8 seconds.
+      if (!hadSession) return;
+      errorTimer = setTimeout(() => {
+        setError("Connection lost. Please refresh to reconnect.");
+      }, 8000);
+    };
+
+    return () => {
+      if (errorTimer) clearTimeout(errorTimer);
+      es.close();
+    };
   }, [sessionId]);
 
   const action = useCallback((type: string, payload?: Record<string, unknown>) => {
@@ -297,8 +318,8 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
     <div className="flex flex-col h-screen overflow-hidden bg-dota-bg text-dota-warm relative font-sans">
       <div className="fixed inset-0 bg-crosshatch opacity-40 pointer-events-none z-0" />
       <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute inset-y-0 left-0 w-1/4 bg-linear-to-r from-dota-radiant/[0.12] to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-1/4 bg-linear-to-l from-dota-dire/[0.12] to-transparent" />
+        <div className="absolute inset-y-0 left-0 w-1/4 bg-linear-to-r from-dota-radiant/12 to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-1/4 bg-linear-to-l from-dota-dire/12 to-transparent" />
       </div>
 
       {/* Header */}
@@ -307,7 +328,7 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
         <div className="flex items-center gap-6 px-6 py-3">
           <div className="shrink-0 flex flex-col leading-tight">
             <span className="font-display text-[10px] font-black tracking-[0.5em] text-dota-gold uppercase opacity-80">DOTA 2</span>
-            <span className="font-display text-lg font-black text-white tracking-[0.1em] uppercase truncate max-w-[200px]">
+            <span className="font-display text-lg font-black text-white tracking-widest uppercase truncate max-w-[200px]">
               {session.name}
             </span>
           </div>

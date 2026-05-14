@@ -362,7 +362,9 @@ declare global {
 }
 
 export function getStore(): Store {
-  if (!global.__draftStore) {
+  // If the singleton exists but is missing methods added after HMR reloaded this
+  // module, recreate it so new API routes work without a full server restart.
+  if (!global.__draftStore || typeof global.__draftStore.sendChat !== "function") {
     global.__draftStore = new Store();
   }
   return global.__draftStore;
