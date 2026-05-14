@@ -5,15 +5,14 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [name, setName] = useState("");
-  const [workId, setWorkId] = useState("");
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !workId.trim()) {
-      setError("Both fields are required");
+    if (!name.trim()) {
+      setError("Name is required");
       return;
     }
     setError("");
@@ -21,7 +20,7 @@ export default function LoginForm() {
       const res = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workId: workId.trim(), name: name.trim() }),
+        body: JSON.stringify({ name: name.trim() }),
       });
       if (res.ok) router.push("/lobby");
       else setError("Authentication failed");
@@ -138,21 +137,6 @@ export default function LoginForm() {
                       maxLength={32}
                       className="input-base"
                     />
-                  </div>
-
-                  <div>
-                    <label className="block font-display text-[10px] text-white/60 uppercase tracking-[0.25em] mb-2 font-bold">
-                      Work ID
-                    </label>
-                    <input
-                      type="text"
-                      value={workId}
-                      onChange={(e) => setWorkId(e.target.value)}
-                      placeholder="e.g. EMP-1234"
-                      maxLength={20}
-                      className="input-base"
-                    />
-                    <p className="text-[10px] text-dota-muted/60 mt-1.5">Used to identify you across sessions</p>
                   </div>
 
                   {error && (

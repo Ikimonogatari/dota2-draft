@@ -248,11 +248,7 @@ export default function LobbyPage({ user, history }: Props) {
                   <span className="text-[10px] text-white/40 uppercase tracking-widest font-display font-bold">Name</span>
                   <span className="text-sm font-black text-white">{user.name}</span>
                 </div>
-                <div className="divider-gold opacity-30" />
-                <div className="flex justify-between items-center">
-                  <span className="text-[10px] text-white/40 uppercase tracking-widest font-display font-bold">Work ID</span>
-                  <span className="font-mono text-xs text-dota-gold font-bold">{user.workId}</span>
-                </div>
+
               </div>
             </div>
 

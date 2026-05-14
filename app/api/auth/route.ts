@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
+function generateId() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
 export async function POST(req: NextRequest) {
-  const { workId, name } = await req.json();
-  if (!workId?.trim() || !name?.trim()) {
-    return NextResponse.json({ error: "workId and name required" }, { status: 400 });
+  const { name } = await req.json();
+  if (!name?.trim()) {
+    return NextResponse.json({ error: "name required" }, { status: 400 });
   }
-  const user = { workId: workId.trim(), name: name.trim() };
+  const user = { workId: generateId(), name: name.trim() };
   const res = NextResponse.json({ user });
   res.cookies.set("dota-user", JSON.stringify(user), {
     httpOnly: false,

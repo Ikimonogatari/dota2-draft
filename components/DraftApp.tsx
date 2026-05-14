@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Hero, HEROES, heroImageUrl } from "@/lib/heroes";
@@ -194,15 +194,30 @@ export default function DraftApp() {
     ]);
   }, []);
 
-  // Auto-select a random available hero when timer expires
+  // Keep refs in sync every render so the effect below can read latest values
+  // without including them in its dependency array (which would cause a cascade).
+  const slotsRef = useRef(slots);
+  slotsRef.current = slots;
+  const handleSelectHeroRef = useRef(handleSelectHero);
+  handleSelectHeroRef.current = handleSelectHero;
+  // Tracks which step was already auto-selected to prevent firing twice.
+  const lastAutoStepRef = useRef(-1);
+
+  // Auto-select once per step when the timer expires.
+  // Deps are [timeLeft, isDone] only — adding slots/handleSelectHero would cause
+  // a cascade: selecting hero → slots changes → effect re-fires while timeLeft is
+  // still 0 → selects next hero → repeat through every remaining step.
   useEffect(() => {
     if (timeLeft > 0 || isDone) return;
-    const usedIds = new Set(slots.filter((s) => s.heroId !== null).map((s) => s.heroId as number));
+    if (lastAutoStepRef.current === currentStep) return; // already fired for this step
+    lastAutoStepRef.current = currentStep;
+    const usedIds = new Set(slotsRef.current.filter((s) => s.heroId !== null).map((s) => s.heroId as number));
     const available = HEROES.filter((h) => !usedIds.has(h.id));
     if (available.length === 0) return;
     const hero = available[Math.floor(Math.random() * available.length)];
-    handleSelectHero(hero);
-  }, [timeLeft, isDone, slots, handleSelectHero]);
+    handleSelectHeroRef.current(hero);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, isDone]);
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-dota-bg text-dota-warm">
