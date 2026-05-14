@@ -37,6 +37,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     case "mention":
       err = store.addMention(id, user.workId, payload.heroId as number);
       break;
+    case "chat":
+      err = store.sendChat(id, user.workId, payload.text as string, payload.scope as "all" | "radiant" | "dire");
+      break;
     case "endSession":
       err = store.endSession(id, user.workId);
       break;

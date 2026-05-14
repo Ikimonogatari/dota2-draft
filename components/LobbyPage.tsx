@@ -130,6 +130,7 @@ export default function LobbyPage({ user, history }: Props) {
                       onChange={(e) => setNewName(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && createSession()}
                       placeholder="Name your draft (e.g. Office Finals)"
+                      autoComplete="off"
                       className="input-base flex-1"
                     />
                     <button

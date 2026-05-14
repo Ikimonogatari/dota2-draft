@@ -46,9 +46,11 @@ function PickSlot({ slot, index, team }: { slot: DraftSlot; index: number; team:
 
   if (!hero) {
     return (
-      <div className="relative aspect-10/13 w-full rounded-sm border border-dashed border-white/10 flex items-center justify-center bg-black/20 group transition-all duration-500">
-        <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40" />
-        <span className="text-2xl font-display font-black text-white/10 group-hover:text-white/20 transition-all">{index + 1}</span>
+      <div className="relative flex-1 w-full border-b border-white/5 flex items-center px-6 bg-black/40">
+        <div className="flex flex-col leading-tight opacity-20">
+          <span className="text-sm font-display font-black text-white uppercase tracking-[0.2em]">EMPTY</span>
+          <span className="text-[9px] font-display font-bold text-white uppercase tracking-[0.3em]">SLOT {index + 1}</span>
+        </div>
       </div>
     );
   }
@@ -57,32 +59,38 @@ function PickSlot({ slot, index, team }: { slot: DraftSlot; index: number; team:
   const isRadiant = team === "radiant";
 
   return (
-    <div className={`relative aspect-10/13 w-full rounded-sm overflow-hidden border ${isRadiant ? "border-dota-radiant/30" : "border-dota-dire/30"} shadow-2xl transition-all duration-700 animate-pop-in`}>
+    <div className={`relative flex-1 w-full overflow-hidden border-b ${isRadiant ? "border-dota-radiant/10" : "border-dota-dire/10"} shadow-xl transition-all duration-700 animate-pop-in hover:brightness-110`}>
       {imgError ? (
         <div className="absolute inset-0 bg-dota-surface flex items-center justify-center">
-          <span className="text-[10px] text-dota-warm px-2 text-center font-display uppercase font-black">{hero.displayName}</span>
+          <span className="text-[9px] text-dota-warm px-2 text-center font-display uppercase font-black tracking-widest">{hero.displayName}</span>
         </div>
       ) : (
-        <Image
-          src={src}
-          alt={hero.displayName}
-          fill
-          className="object-cover object-[center_15%] scale-105"
-          onError={() => setImgError(true)}
-          unoptimized
-        />
+        <div className="absolute inset-0">
+          <Image
+            src={src}
+            alt={hero.displayName}
+            fill
+            className="object-cover object-center scale-110"
+            onError={() => setImgError(true)}
+            unoptimized
+          />
+        </div>
       )}
       
       {/* Overlays */}
-      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
-      <div className={`absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t ${isRadiant ? "from-dota-radiant/30" : "from-dota-dire/30"} to-transparent mix-blend-overlay`} />
+      <div className="absolute inset-0 bg-linear-to-r from-black/80 via-transparent to-transparent" />
+      <div className={`absolute inset-y-0 left-0 w-1 ${isRadiant ? "bg-dota-radiant" : "bg-dota-dire"} shadow-lg`} />
       
       {/* Hero Name Tag */}
-      <div className="absolute bottom-0 inset-x-0 p-3 pt-6 bg-linear-to-t from-black/90 to-transparent">
-        <span className="block text-[12px] font-display font-black text-white leading-none tracking-wider uppercase truncate drop-shadow-2xl">
-          {hero.displayName}
-        </span>
-        <div className={`h-1 w-full mt-2 ${isRadiant ? "bg-dota-radiant/80 shadow-[0_0_10px_rgba(74,222,128,0.4)]" : "bg-dota-dire/80 shadow-[0_0_10px_rgba(248,113,113,0.4)]"}`} />
+      <div className="absolute inset-0 flex items-center px-4">
+        <div className="flex flex-col leading-tight">
+          <span className="text-[11px] font-display font-black text-white leading-none tracking-[0.2em] uppercase drop-shadow-2xl">
+            {hero.displayName}
+          </span>
+          <span className={`text-[8px] font-display font-bold ${isRadiant ? "text-dota-radiant" : "text-dota-dire"} uppercase tracking-widest opacity-60`}>
+            SLOT {index + 1}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -161,16 +169,10 @@ export default function TeamPanel({ team, slots, currentStep }: TeamPanelProps) 
       </div>
 
       {/* Picks */}
-      <div className="flex-1 flex flex-col p-4 gap-3 min-h-0 overflow-y-auto scrollbar-slim">
-        <p className="text-[11px] text-dota-muted uppercase tracking-[0.4em] font-black shrink-0 mb-2 flex items-center gap-3">
-          <span className={`w-1.5 h-1.5 rounded-full ${style.dot} shadow-sm`} />
-          {style.picksLabel}
-        </p>
-        <div className="flex flex-col gap-4">
-          {picks.map((slot, i) => (
-            <PickSlot key={i} slot={slot} index={i} team={team} />
-          ))}
-        </div>
+      <div className="flex-1 flex flex-col">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <PickSlot key={i} slot={picks[i] || { team, type: "pick", heroId: null, heroName: null }} index={i} team={team} />
+        ))}
       </div>
 
       {/* Bans */}
@@ -187,5 +189,5 @@ export default function TeamPanel({ team, slots, currentStep }: TeamPanelProps) 
       </div>
     </div>
   );
-}
 
+}

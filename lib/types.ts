@@ -17,7 +17,8 @@ export interface Player {
 
 export interface ChatMessage {
   id: string;
-  type: "mention" | "system";
+  type: "mention" | "system" | "chat";
+  scope: "all" | "radiant" | "dire";
   authorId: string;
   authorName: string;
   heroId?: number;

@@ -112,7 +112,7 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
   if (session.status === "waiting" || session.status === "ready") {
     const isReady = session.status === "ready";
     return (
-      <div className="min-h-screen bg-dota-bg text-dota-warm flex flex-col relative overflow-hidden">
+      <div className="min-h-screen bg-dota-bg text-dota-warm flex flex-col relative overflow-y-auto overflow-x-hidden">
         <div className="fixed inset-0 bg-crosshatch opacity-40 pointer-events-none" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-px bg-linear-to-r from-transparent via-dota-gold/40 to-transparent" />
 
@@ -252,8 +252,12 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
         </div>
 
         {/* Chat strip */}
-        <div className="relative z-20 shrink-0 border-t border-white/10 glass-panel px-8 py-4 h-32">
-          <ChatPanel messages={session.chat} />
+        <div className="relative z-20 shrink-0 border-t border-white/10 glass-panel h-64">
+          <ChatPanel
+            messages={session.chat}
+            sessionId={sessionId}
+            myTeam={me?.team ?? "spectator"}
+          />
         </div>
 
         {/* Footer info */}
@@ -396,8 +400,12 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
           </div>
 
           {/* Chat area */}
-          <div className="shrink-0 h-32 glass-panel border border-white/10 rounded-sm p-4 shadow-2xl">
-            <ChatPanel messages={session.chat} />
+          <div className="shrink-0 h-64 glass-panel border border-white/10 rounded-sm shadow-2xl">
+            <ChatPanel
+              messages={session.chat}
+              sessionId={sessionId}
+              myTeam={me?.team ?? "spectator"}
+            />
           </div>
         </div>
 

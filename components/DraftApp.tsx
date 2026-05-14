@@ -159,6 +159,16 @@ export default function DraftApp() {
   const timeLeft = useCountdown(currentStep, TIMER_DURATION, !isDone);
   const currentAction = isDone ? null : DRAFT_SEQUENCE[currentStep];
 
+  // Auto-select a random available hero when timer expires
+  useEffect(() => {
+    if (timeLeft > 0 || isDone) return;
+    const usedIds = new Set(slots.filter((s) => s.heroId !== null).map((s) => s.heroId as number));
+    const available = HEROES.filter((h) => !usedIds.has(h.id));
+    if (available.length === 0) return;
+    const hero = available[Math.floor(Math.random() * available.length)];
+    handleSelectHero(hero);
+  }, [timeLeft, isDone, slots, handleSelectHero]);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-dota-bg text-dota-warm">
       {/* Background: dot grid + team corner glows */}

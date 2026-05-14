@@ -249,9 +249,11 @@ class Store {
     const hero = HEROES.find((h) => h.id === heroId);
     if (!hero) return "Hero not found";
 
+    const playerTeam = player.team === "radiant" || player.team === "dire" ? player.team : "all";
     const msg: ChatMessage = {
       id: nanoid(),
       type: "mention",
+      scope: playerTeam as "all" | "radiant" | "dire",
       authorId: workId,
       authorName: player.name,
       heroId: hero.id,
@@ -287,12 +289,39 @@ class Store {
 
   // ── Internal ──────────────────────────────────────────────────────────
 
+  sendChat(sessionId: string, workId: string, text: string, scope: "all" | "radiant" | "dire"): string | null {
+    const s = this.sessions.get(sessionId);
+    if (!s) return "Session not found";
+    if (s.status === "completed") return "Session is over";
+
+    const player = s.players.find((p) => p.workId === workId);
+    if (!player) return "Not in session";
+
+    const trimmed = text.trim().slice(0, 200);
+    if (!trimmed) return "Empty message";
+
+    s.chat.push({
+      id: nanoid(),
+      type: "chat",
+      scope,
+      authorId: workId,
+      authorName: player.name,
+      text: trimmed,
+      timestamp: Date.now(),
+    });
+    if (s.chat.length > 100) s.chat.splice(0, s.chat.length - 100);
+
+    this.broadcast(sessionId);
+    return null;
+  }
+
   private addSystemMessage(sessionId: string, text: string) {
     const s = this.sessions.get(sessionId);
     if (!s) return;
     s.chat.push({
       id: nanoid(),
       type: "system",
+      scope: "all",
       authorId: "system",
       authorName: "System",
       text,
@@ -319,6 +348,7 @@ class Store {
       if (available.length === 0) return;
 
       const hero = available[Math.floor(Math.random() * available.length)];
+      this.addSystemMessage(sessionId, `Time is up! Autoselecting ${hero.displayName}.`);
       this.performStep(sessionId, session.adminId, hero.id);
     }, 30_000);
 
