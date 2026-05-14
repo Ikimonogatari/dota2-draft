@@ -4,7 +4,7 @@ import { getStore } from "@/lib/store";
 function getUser(req: NextRequest) {
   const cookie = req.cookies.get("dota-user")?.value;
   if (!cookie) return null;
-  try { return JSON.parse(cookie) as { workId: string; name: string }; } catch { return null; }
+  try { return JSON.parse(cookie) as { workId: string; name: string; mmr: number; roles: any[] }; } catch { return null; }
 }
 
 export async function GET() {
@@ -18,6 +18,6 @@ export async function POST(req: NextRequest) {
   const { name } = await req.json();
   if (!name?.trim()) return NextResponse.json({ error: "Session name required" }, { status: 400 });
 
-  const session = getStore().createSession(name.trim(), user.workId, user.name);
+  const session = getStore().createSession(name.trim(), user.workId, user.name, user.mmr, user.roles);
   return NextResponse.json({ id: session.id });
 }

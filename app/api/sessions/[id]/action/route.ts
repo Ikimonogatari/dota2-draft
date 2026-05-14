@@ -27,6 +27,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     case "swapPlayer":
       err = store.swapPlayer(id, user.workId, payload.targetWorkId as string);
       break;
+    case "startPlayerDraft":
+      err = store.startPlayerDraft(id, user.workId);
+      break;
+    case "pickTeammate":
+      err = store.pickTeammate(id, user.workId, payload.targetWorkId as string);
+      break;
     case "startDraft":
       err = store.startDraft(id, user.workId);
       break;

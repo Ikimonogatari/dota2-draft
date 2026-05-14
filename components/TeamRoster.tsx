@@ -48,6 +48,10 @@ export default function TeamRoster({
   const me = players.find((p) => p.workId === myWorkId);
   const iAmCaptain = captain === myWorkId;
   const isDrafting = sessionStatus === "drafting" || sessionStatus === "completed";
+  
+  const neededRoles: import("@/lib/types").Role[] = ["mid", "carry", "offlane", "support", "hard support"];
+  const coveredRoles = new Set(players.flatMap(p => p.roles || []));
+  const missingRoles = neededRoles.filter(r => !coveredRoles.has(r));
 
   return (
     <div className={`flex flex-col rounded-sm border ${style.border} glass-panel overflow-hidden panel-corners transition-all duration-500`}>
@@ -88,13 +92,29 @@ export default function TeamRoster({
                 )}
               </div>
 
-              {/* Name */}
-              <span className={`text-xs font-display font-black uppercase tracking-wider truncate flex-1 ${
-                isMe ? "text-white" : "text-white/70"
-              }`}>
-                {p.name}
-                {isMe && <span className="text-dota-gold text-[9px] ml-2 normal-case font-black tracking-normal opacity-80">(YOU)</span>}
-              </span>
+              {/* Name and Info */}
+              <div className="flex-1 min-w-0 flex flex-col justify-center">
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-display font-black uppercase tracking-wider truncate ${
+                    isMe ? "text-white" : "text-white/70"
+                  }`}>
+                    {p.name}
+                    {isMe && <span className="text-dota-gold text-[9px] ml-2 normal-case font-black tracking-normal opacity-80">(YOU)</span>}
+                  </span>
+                  {p.mmr !== undefined && (
+                    <span className="text-[9px] text-dota-gold font-mono tracking-widest">{p.mmr} MMR</span>
+                  )}
+                </div>
+                {p.roles && p.roles.length > 0 && (
+                  <div className="flex gap-1 mt-0.5">
+                    {p.roles.map(r => (
+                      <span key={r} className="text-[7px] uppercase tracking-widest px-1 py-0.5 bg-white/5 text-white/50 rounded-sm">
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* Actions */}
               {!isDrafting && (
@@ -137,6 +157,24 @@ export default function TeamRoster({
           );
         })}
       </div>
+
+      {/* Role Compatibility */}
+      {players.length > 0 && (
+        <div className={`px-4 py-2 bg-black/40 border-t ${style.border}`}>
+          <span className="text-[9px] text-white/40 uppercase tracking-widest font-display block mb-1">Missing Roles</span>
+          {missingRoles.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {missingRoles.map(r => (
+                <span key={r} className="text-[8px] uppercase tracking-widest px-1.5 py-0.5 bg-dota-dire/10 text-dota-dire rounded-sm border border-dota-dire/20">
+                  {r}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <span className="text-[9px] text-dota-radiant uppercase tracking-widest font-bold">All roles covered ✓</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

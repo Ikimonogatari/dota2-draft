@@ -5,11 +5,17 @@ function generateId() {
 }
 
 export async function POST(req: NextRequest) {
-  const { name } = await req.json();
+  const { name, mmr, roles } = await req.json();
   if (!name?.trim()) {
-    return NextResponse.json({ error: "name required" }, { status: 400 });
+    return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
-  const user = { workId: generateId(), name: name.trim() };
+  if (typeof mmr !== "number" || mmr < 0 || mmr > 18000) {
+    return NextResponse.json({ error: "MMR must be between 0 and 18000" }, { status: 400 });
+  }
+  if (!Array.isArray(roles) || roles.length === 0) {
+    return NextResponse.json({ error: "At least one role must be selected" }, { status: 400 });
+  }
+  const user = { workId: generateId(), name: name.trim(), mmr, roles };
   const res = NextResponse.json({ user });
   res.cookies.set("dota-user", JSON.stringify(user), {
     httpOnly: false,

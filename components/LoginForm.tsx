@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const [name, setName] = useState("");
+  const [mmr, setMmr] = useState<string>("");
+  const [roles, setRoles] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
   const router = useRouter();
@@ -15,12 +17,21 @@ export default function LoginForm() {
       setError("Name is required");
       return;
     }
+    const mmrNum = parseInt(mmr, 10);
+    if (isNaN(mmrNum) || mmrNum < 0 || mmrNum > 18000) {
+      setError("MMR must be between 0 and 18000");
+      return;
+    }
+    if (roles.length === 0) {
+      setError("Please select at least one role");
+      return;
+    }
     setError("");
     startTransition(async () => {
       const res = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim() }),
+        body: JSON.stringify({ name: name.trim(), mmr: mmrNum, roles }),
       });
       if (res.ok) router.push("/lobby");
       else setError("Authentication failed");
@@ -137,6 +148,47 @@ export default function LoginForm() {
                       maxLength={32}
                       className="input-base"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block font-display text-[10px] text-white/60 uppercase tracking-[0.25em] mb-2 font-bold">
+                      MMR Rank (0 - 18000)
+                    </label>
+                    <input
+                      type="number"
+                      value={mmr}
+                      onChange={(e) => setMmr(e.target.value)}
+                      placeholder="e.g., 5000"
+                      min={0}
+                      max={18000}
+                      className="input-base"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-display text-[10px] text-white/60 uppercase tracking-[0.25em] mb-2 font-bold">
+                      Playing Roles (Select at least 1)
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {["mid", "carry", "offlane", "support", "hard support"].map((role) => (
+                        <button
+                          key={role}
+                          type="button"
+                          onClick={() => {
+                            setRoles((prev) =>
+                              prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+                            );
+                          }}
+                          className={`px-3 py-1.5 text-[10px] font-display font-black uppercase tracking-widest rounded-sm border transition-all ${
+                            roles.includes(role)
+                              ? "bg-dota-gold/20 text-dota-gold border-dota-gold shadow-[0_0_10px_rgba(212,175,55,0.2)]"
+                              : "bg-black/40 text-white/50 border-white/10 hover:border-white/30 hover:text-white"
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   {error && (

@@ -1,6 +1,6 @@
 import { DRAFT_SEQUENCE, initDraftSlots } from "@/lib/draft";
 import { HEROES } from "@/lib/heroes";
-import type { Session, Player, ChatMessage, SessionSummary, TeamName } from "@/lib/types";
+import type { Session, Player, ChatMessage, SessionSummary, TeamName, Role } from "@/lib/types";
 
 function makeId(len = 6): string {
   return Math.random().toString(36).slice(2, 2 + len).toUpperCase();
@@ -45,12 +45,14 @@ class Store {
 
   // ── Sessions ─────────────────────────────────────────────────────────
 
-  createSession(name: string, adminWorkId: string, adminName: string): Session {
+  createSession(name: string, adminWorkId: string, adminName: string, mmr: number, roles: Role[]): Session {
     const id = makeId();
     const firstPlayer: Player = {
       workId: adminWorkId,
       name: adminName,
-      team: "radiant",
+      mmr,
+      roles,
+      team: "unassigned",
       isCaptain: false,
     };
     const session: Session = {
@@ -88,17 +90,14 @@ class Store {
 
   // ── Actions ───────────────────────────────────────────────────────────
 
-  joinSession(sessionId: string, workId: string, name: string): string | null {
+  joinSession(sessionId: string, workId: string, name: string, mmr: number, roles: Role[]): string | null {
     const s = this.sessions.get(sessionId);
     if (!s) return "Session not found";
     if (s.status === "completed") return "Session already completed";
     if (s.players.find((p) => p.workId === workId)) return null;
     if (s.players.length >= 10) return "Session is full";
 
-    const radiantCount = s.players.filter((p) => p.team === "radiant").length;
-    const team: TeamName = radiantCount < 5 ? "radiant" : "dire";
-
-    s.players.push({ workId, name, team, isCaptain: false });
+    s.players.push({ workId, name, mmr, roles, team: "unassigned", isCaptain: false });
 
     if (s.players.length === 10 && s.status === "waiting") {
       s.status = "ready";
@@ -177,6 +176,53 @@ class Store {
 
     player.team = newTeam;
     this.addSystemMessage(sessionId, `${player.name} moved to ${newTeam}`);
+    this.broadcast(sessionId);
+    return null;
+  }
+
+  startPlayerDraft(sessionId: string, adminWorkId: string): string | null {
+    const s = this.sessions.get(sessionId);
+    if (!s) return "Session not found";
+    if (adminWorkId !== s.adminId) return "Only admin can start player draft";
+    if (s.status !== "ready" && s.status !== "waiting") return "Invalid state";
+    if (!s.radiantCaptain || !s.direCaptain) return "Both teams must have a captain first";
+
+    s.status = "player_drafting";
+    s.playerDraftTurn = "radiant"; // Radiant picks first
+    this.addSystemMessage(sessionId, "Player draft has started! Radiant captain picks first.");
+    this.broadcast(sessionId);
+    return null;
+  }
+
+  pickTeammate(sessionId: string, captainWorkId: string, targetWorkId: string): string | null {
+    const s = this.sessions.get(sessionId);
+    if (!s) return "Session not found";
+    if (s.status !== "player_drafting") return "Not in player drafting phase";
+
+    const captain = s.players.find((p) => p.workId === captainWorkId);
+    if (!captain?.isCaptain) return "Only captains can pick";
+    if (s.playerDraftTurn !== captain.team) return "Not your turn";
+
+    const target = s.players.find((p) => p.workId === targetWorkId);
+    if (!target) return "Player not found";
+    if (target.team !== "unassigned") return "Player already assigned";
+
+    const teamCount = s.players.filter((p) => p.team === captain.team).length;
+    if (teamCount >= 5) return "Team is full";
+
+    target.team = captain.team as TeamName;
+    
+    // Switch turn
+    s.playerDraftTurn = captain.team === "radiant" ? "dire" : "radiant";
+    this.addSystemMessage(sessionId, `${captain.name} drafted ${target.name}`);
+
+    // If no more unassigned players (or teams full), finish
+    const unassignedCount = s.players.filter((p) => p.team === "unassigned").length;
+    if (unassignedCount === 0) {
+      s.status = "ready";
+      this.addSystemMessage(sessionId, "Player draft complete! Admin can now start the hero draft.");
+    }
+
     this.broadcast(sessionId);
     return null;
   }

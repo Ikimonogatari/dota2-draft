@@ -129,9 +129,20 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
   const bannedIds      = new Set(session.slots.filter((s) => s.type === "ban"  && s.heroId).map((s) => s.heroId!));
   const pickedIds      = new Set(session.slots.filter((s) => s.type === "pick" && s.heroId).map((s) => s.heroId!));
 
-  /* ── WAITING ROOM ──────────────────────────────────────── */
-  if (session.status === "waiting" || session.status === "ready") {
+  /* ── WAITING ROOM & PLAYER DRAFT ───────────────────────── */
+  if (session.status === "waiting" || session.status === "ready" || session.status === "player_drafting") {
     const isReady = session.status === "ready";
+    const isPlayerDrafting = session.status === "player_drafting";
+
+    const radiantAvgMmr = radiantPlayers.length ? radiantPlayers.reduce((sum, p) => sum + (p.mmr || 0), 0) / radiantPlayers.length : 0;
+    const direAvgMmr = direPlayers.length ? direPlayers.reduce((sum, p) => sum + (p.mmr || 0), 0) / direPlayers.length : 0;
+    
+    let radiantWinPct = 50;
+    if (radiantAvgMmr > 0 || direAvgMmr > 0) {
+      radiantWinPct = (radiantAvgMmr / (radiantAvgMmr + direAvgMmr)) * 100;
+    }
+    const direWinPct = 100 - radiantWinPct;
+
     return (
       <div className="min-h-screen bg-dota-bg text-dota-warm flex flex-col relative overflow-y-auto overflow-x-hidden">
         <div className="fixed inset-0 bg-crosshatch opacity-40 pointer-events-none" />
@@ -147,9 +158,29 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
               ← LOBBY
             </button>
             <div className="w-px h-8 bg-white/10 shrink-0" />
-            <h1 className="font-display text-xl font-black text-white tracking-[0.25em] uppercase flex-1 text-center drop-shadow-2xl">
-              {session.name}
-            </h1>
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <h1 className="font-display text-xl font-black text-white tracking-[0.25em] uppercase text-center drop-shadow-2xl">
+                {session.name}
+              </h1>
+              {/* ELO ASPECT */}
+              <div className="hidden md:flex flex-col items-center mt-3 gap-1.5">
+                <span className="font-display text-[9px] text-white/50 tracking-[0.3em] uppercase">Rank Distribution</span>
+                <div className="flex items-center gap-4 px-5 py-2 bg-black/40 border border-white/10 rounded-full shadow-inner">
+                  <div className="flex items-center gap-2">
+                    <span className="text-dota-radiant font-black text-xs tracking-widest">RADIANT</span>
+                    <span className="text-white font-bold text-[11px]">{radiantWinPct.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-32 h-1.5 bg-white/10 rounded-full overflow-hidden flex">
+                    <div className="h-full bg-dota-radiant" style={{ width: `${radiantWinPct}%` }} />
+                    <div className="h-full bg-dota-dire" style={{ width: `${direWinPct}%` }} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-bold text-[11px]">{direWinPct.toFixed(1)}%</span>
+                    <span className="text-dota-dire font-black text-xs tracking-widest">DIRE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-3 px-4 py-2 bg-black/40 border border-white/5 rounded-sm">
               <div className={`w-2.5 h-2.5 rounded-full ${isReady ? "bg-dota-gold glow-pulse" : "bg-white/20"}`} />
               <span className="font-display text-[10px] font-black text-white uppercase tracking-widest">
@@ -159,9 +190,9 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
           </div>
         </header>
 
-        <div className="relative flex-1 flex flex-col lg:flex-row gap-8 p-8 max-w-6xl mx-auto w-full z-10">
-          {/* Team rosters */}
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-6 lg:w-72 shrink-0">
+        <div className="relative flex-1 flex flex-col lg:flex-row gap-8 p-8 max-w-[1400px] mx-auto w-full z-10">
+          {/* Radiant Roster */}
+          <div className="w-full lg:w-72 shrink-0">
             <TeamRoster
               team="radiant"
               players={radiantPlayers}
@@ -174,64 +205,107 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
               onResignCaptain={() => action("resignCaptain")}
               onSwap={(t) => action("swapPlayer", { targetWorkId: t })}
             />
-            <TeamRoster
-              team="dire"
-              players={direPlayers}
-              captain={session.direCaptain}
-              myWorkId={user.workId}
-              isAdmin={isAdmin}
-              sessionStatus={session.status}
-              onBecomeCaptain={(t) => action("setCaptain", { targetWorkId: t })}
-              onTransferCaptain={(t) => action("setCaptain", { targetWorkId: t })}
-              onResignCaptain={() => action("resignCaptain")}
-              onSwap={(t) => action("swapPlayer", { targetWorkId: t })}
-            />
           </div>
 
           {/* Center command panel */}
           <div className="flex-1 glass-panel panel-corners flex flex-col items-center justify-center gap-10 p-12 shadow-2xl min-h-[500px]">
-            <div className="text-center animate-fade-in-up">
-              <p className="font-display text-[11px] text-dota-gold font-black uppercase tracking-[0.6em] mb-4 opacity-80">GAME DRAFT</p>
-              <h2 className="font-display text-5xl font-black text-white tracking-wider uppercase mb-8 drop-shadow-lg">{session.name}</h2>
-              <div className="divider-gold mb-8 w-48 mx-auto" />
-
-              {/* Player count display */}
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex gap-2">
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-3 h-3 rounded-full transition-all duration-700 ${
-                        i < session.players.length
-                          ? "bg-dota-gold shadow-[0_0_15px_rgba(212,175,55,0.6)]"
-                          : "bg-white/10"
-                      }`}
-                    />
-                  ))}
+            {isPlayerDrafting ? (
+              <div className="flex-1 w-full max-w-lg flex flex-col gap-4 animate-fade-in-up">
+                <div className="text-center mb-6">
+                  <p className="font-display text-sm text-dota-gold font-black uppercase tracking-widest">
+                    PLAYER DRAFT PHASE
+                  </p>
+                  <p className="text-white/60 text-xs mt-1">
+                    {session.playerDraftTurn === "radiant" ? "RADIANT'S TURN TO PICK" : "DIRE'S TURN TO PICK"}
+                  </p>
                 </div>
-                <p className="font-display text-sm text-dota-warm font-black uppercase tracking-[0.3em]">
-                  {session.players.length} / 10 PLAYERS CONNECTED
-                </p>
+
+                <div className="flex flex-col gap-2 overflow-y-auto max-h-[400px] scrollbar-slim pr-2">
+                  {session.players.filter(p => p.team === "unassigned").map(p => (
+                    <div key={p.workId} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-sm hover:bg-white/10 transition-colors">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-white">{p.name}</span>
+                          <span className="text-[10px] text-dota-gold font-mono bg-dota-gold/10 px-2 py-0.5 rounded-sm border border-dota-gold/20">{p.mmr} MMR</span>
+                        </div>
+                        <div className="flex gap-1.5 mt-2">
+                          {p.roles?.map(r => (
+                            <span key={r} className="text-[9px] font-display font-bold uppercase tracking-widest px-2 py-1 bg-black/60 text-white/70 rounded-sm border border-white/10">
+                              {r}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {iAmCaptain && session.playerDraftTurn === me?.team && (
+                        <button
+                          onClick={() => action("pickTeammate", { targetWorkId: p.workId })}
+                          className="dota-button px-5 py-2.5 bg-dota-gold hover:bg-dota-gold-light text-dota-bg text-[11px] font-black tracking-widest rounded-sm transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)]"
+                        >
+                          DRAFT
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {session.players.filter(p => p.team === "unassigned").length === 0 && (
+                    <div className="text-center py-8 opacity-50">
+                      <p className="font-display text-sm uppercase tracking-widest">No unassigned players left</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="text-center animate-fade-in-up">
+                <p className="font-display text-[11px] text-dota-gold font-black uppercase tracking-[0.6em] mb-4 opacity-80">GAME DRAFT</p>
+                <h2 className="font-display text-5xl font-black text-white tracking-wider uppercase mb-8 drop-shadow-lg">{session.name}</h2>
+                <div className="divider-gold mb-8 w-48 mx-auto" />
+
+                {/* Player count display */}
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex gap-2">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-3 h-3 rounded-full transition-all duration-700 ${
+                          i < session.players.length
+                            ? "bg-dota-gold shadow-[0_0_15px_rgba(212,175,55,0.6)]"
+                            : "bg-white/10"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="font-display text-sm text-dota-warm font-black uppercase tracking-[0.3em]">
+                    {session.players.length} / 10 PLAYERS CONNECTED
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Admin controls */}
-            {isAdmin && (
-              <div className="flex flex-col gap-6 items-center w-full max-w-sm animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            {!isPlayerDrafting && isAdmin && (
+              <div className="flex flex-col gap-4 items-center w-full max-w-sm animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
                 {isReady && (
-                  <button
-                    onClick={() => action("startDraft")}
-                    className="dota-button w-full py-5 bg-dota-gold text-dota-bg font-black text-lg rounded-sm shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95"
-                  >
-                    START DRAFT
-                  </button>
+                  <>
+                    <button
+                      onClick={() => action("startPlayerDraft")}
+                      className="dota-button w-full py-4 bg-dota-radiant/20 border border-dota-radiant/50 text-dota-radiant hover:bg-dota-radiant/30 font-black text-sm uppercase tracking-widest rounded-sm shadow-[0_0_20px_rgba(74,158,74,0.2)] transition-all"
+                    >
+                      START PLAYER DRAFT
+                    </button>
+                    <div className="w-full h-px bg-white/10 my-2" />
+                    <button
+                      onClick={() => action("startDraft")}
+                      className="dota-button w-full py-5 bg-dota-gold text-dota-bg font-black text-lg rounded-sm shadow-[0_0_50px_rgba(212,175,55,0.3)] hover:scale-105 active:scale-95 transition-all"
+                    >
+                      START HERO DRAFT
+                    </button>
+                  </>
                 )}
                 {!isReady && session.players.length >= 2 && (
                   <button
                     onClick={() => action("startDraft")}
                     className="dota-button w-full py-3 border border-dota-gold/40 text-dota-gold hover:bg-dota-gold/10 rounded-sm text-xs"
                   >
-                    FORCE START (DEV)
+                    FORCE START HERO DRAFT (DEV)
                   </button>
                 )}
                 <button
@@ -243,7 +317,7 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
               </div>
             )}
 
-            {!isAdmin && (
+            {!isAdmin && !isPlayerDrafting && (
               <div className="flex flex-col items-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
                 <div className="w-10 h-1 bg-dota-gold/30 rounded-full overflow-hidden">
                   <div className="h-full bg-dota-gold w-1/2 animate-[scan_2s_linear_infinite]" />
@@ -270,14 +344,29 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
               </div>
             )}
           </div>
-        </div>
 
+          {/* Dire Roster */}
+          <div className="w-full lg:w-72 shrink-0">
+            <TeamRoster
+              team="dire"
+              players={direPlayers}
+              captain={session.direCaptain}
+              myWorkId={user.workId}
+              isAdmin={isAdmin}
+              sessionStatus={session.status}
+              onBecomeCaptain={(t) => action("setCaptain", { targetWorkId: t })}
+              onTransferCaptain={(t) => action("setCaptain", { targetWorkId: t })}
+              onResignCaptain={() => action("resignCaptain")}
+              onSwap={(t) => action("swapPlayer", { targetWorkId: t })}
+            />
+          </div>
+        </div>
         {/* Chat strip */}
         <div className="relative z-20 shrink-0 border-t border-white/10 glass-panel h-64">
           <ChatPanel
             messages={session.chat}
             sessionId={sessionId}
-            myTeam={me?.team ?? "spectator"}
+            myTeam={me?.team === "unassigned" ? "spectator" : (me?.team ?? "spectator")}
           />
         </div>
 
@@ -425,7 +514,7 @@ export default function DraftRoom({ sessionId, user }: DraftRoomProps) {
             <ChatPanel
               messages={session.chat}
               sessionId={sessionId}
-              myTeam={me?.team ?? "spectator"}
+              myTeam={me?.team === "unassigned" ? "spectator" : (me?.team ?? "spectator")}
             />
           </div>
         </div>

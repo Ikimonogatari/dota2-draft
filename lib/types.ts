@@ -1,17 +1,23 @@
 import type { DraftSlot } from "@/lib/draft";
 
+export type Role = "mid" | "carry" | "offlane" | "support" | "hard support";
+
 export interface User {
   workId: string;
   name: string;
+  mmr: number;
+  roles: Role[];
 }
 
 export type TeamName = "radiant" | "dire";
-export type SessionStatus = "waiting" | "ready" | "drafting" | "completed";
+export type SessionStatus = "waiting" | "ready" | "player_drafting" | "drafting" | "completed";
 
 export interface Player {
   workId: string;
   name: string;
-  team: TeamName | "spectator";
+  mmr: number;
+  roles: Role[];
+  team: TeamName | "spectator" | "unassigned";
   isCaptain: boolean;
 }
 
@@ -38,6 +44,7 @@ export interface Session {
   direCaptain: string | null;
   slots: DraftSlot[];
   currentStep: number;
+  playerDraftTurn?: TeamName;
   chat: ChatMessage[];
   timerEndsAt: number | null;
   createdAt: number;
